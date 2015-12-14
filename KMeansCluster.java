@@ -57,5 +57,43 @@ public class KMeansCluster {
 		return points;
 	}
 
-	
+	public static void main(String args[]) throws Exception {
+		File modelFile1 = null;
+		File modelFile2 = null;
+		if (args.length > 0) {
+			modelFile1 = new File(args[0]);
+			modelFile2 = new File(args[1]);
+		}
+		else {
+			System.err.println("Please specify name of file or put file 'Logs.csv' into current directory!");
+			System.exit(1);
+		}
+		PreProcessor preprocess = new PreProcessor((modelFile1)); // ambot ngano double parentheses
+		preprocess.logToVector();
+		int k = 2000;
+		List<Vector> vectors = getPoints(modelFile2);
+		File testData = new File("clustering/testdata");
+		if(!testData.exists()) {
+			testData.mkdir();
+		}
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		writePointsToFile(vectors, "clustering/testdata/points/file1", fs, conf);
+		Path path = new Path("clustering/testdata/clusters/part -00000");
+		SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf, path, Text.class, Kluster.class);
+		for(int i = 0; i < k; i++) {
+			Vector vec = vectors.get(i);
+			Kluster cluster = new Kluster(vec, i, new EuclideanDistanceMeasure());
+			writer.append(new Text(cluster.getIdentifier()), cluster);
+		}
+		writer.close();
+		KMeansDriver.run(new Path("clustering/testdata/points"), new Path("clustering/testdata/clusters"), new Path("clustering/output"), new EuclideanDistanceMeasure(), 0.001, 2000000, true, 0, false);
+		SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path("clustering/output/" + Kluster.CLUSTERED_POINTS_DIR + "/part-m-00000"), conf();
+			WritableComparable key = (WritableComparable)reader.getKeyClass().newInstance();
+			Writable value = (Writable) reader.getValueClass().newInstance();
+			while (reader.next(key, value)) {
+				System.out.println(value.toString() + " belongs to cluster " + key.toString());
+			}
+			reader.close();
+	}
 }
