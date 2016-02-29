@@ -3,9 +3,9 @@ import java.io.*;
 public class Preprocessor {
     public static void main(String [] args) {
 
-        String fileName = "logs.csv"; // The name of the file to open.
+        String file = "logs.csv"; // The name of the file to open.
 
-        try {
+        /*try {
             byte[] buffer = new byte[1000];
 
             FileInputStream inputStream = 
@@ -21,16 +21,23 @@ public class Preprocessor {
             inputStream.close();        
 
             System.out.println("Read " + total + " bytes");
+        }*/
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+            }
         }
+
         catch(FileNotFoundException ex) {
             System.out.println(
                 "Unable to open file '" + 
-                fileName + "'");                
+                file + "'");                
         }
         catch(IOException ex) {
             System.out.println(
                 "Error reading file '" 
-                + fileName + "'");      
+                + file + "'");      
         }
     }
 }
